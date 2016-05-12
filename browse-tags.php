@@ -10,9 +10,9 @@ class browse_tags extends WP_Widget {
 
 function __construct() {
 	parent::__construct(
-		'browse_tags', 
-		__('Browse Tags Widget', 'browse_tags'), 
-		array( 'description' => __( 'A simple widget that displays tags', 'browse_tags' ), ) 
+		'browse_tags',
+		__('Browse Tags Widget', 'browse_tags'),
+		array( 'description' => __( 'A simple widget that displays tags', 'browse_tags' ), )
 	);
 }
 
@@ -24,31 +24,37 @@ public function widget( $args, $instance ) {
 
 	$term_args = array( 'hide_empty' => true );
 	$terms = get_terms('post_tag', $term_args);
-	if ( !empty( $terms ) && !is_wp_error( $terms ) ) {
-    		$count = count($terms);
-   		$term_list = '';
-		$i = 0;
-		foreach ($terms as $term) {
-			$i++;
-			if($term->count > 0) {
-    				$term_list .= ' <a href="' . get_term_link( $term ) . '" title="' . sprintf(__('View all posts filed under %s', 'my_localization_domain'), $term->name) . '">' . $term->name . '</a>';
-				if ( $count > $i ) { $term_list .= '<span class="tag-sep">&middot;</span> '; }
-				}
-    		}
-    		echo '<p class="tag-browse-list">' . $term_list . '</p>';
-	}
+if ( !empty( $terms ) && !is_wp_error( $terms ) ) {
+    $term_list = '';
+    $threshold_terms = array();
+    foreach ($terms as $term) {
+        if($term->count > 3) {
+            $threshold_terms[] = $term;
+        }
+    }
+    $i = 0;
+    $count = count($threshold_terms);
+    foreach ($threshold_terms as $term) {
+            $i++;
+            $term_list .= ' <a href="' . get_term_link( $term ) . '" title="' . sprintf(__('View all posts filed under %s', 'my_localization_domain'), $term->name) . '">' . $term->name . '</a>';
+            if ( $count > $i ) {
+                $term_list .= '<span class="tag-sep">&middot;</span> ';
+            }
+    }
+    echo '<p class="tag-browse-list">' . $term_list . '</p>';
+}
 		echo $args['after_widget'];
 }
-		
-// Widget Backend 
+
+// Widget Backend
 public function form( $instance ) {
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( 'New title', 'text_domain' );
 		?>
 		<p>
-		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label> 
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
 		</p>
-		<?php 
+		<?php
 
 }
 
